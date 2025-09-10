@@ -1,8 +1,8 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { auth } from "../firebase"
+import { auth } from "../../Infrastructure/firebase"
 import { signInWithEmailAndPassword } from "firebase/auth"
-import "./Auth.css"
+import "../../Styles/Account.css"
 
 export default function Login() {
     const [email, setEmail] = useState("")
@@ -17,7 +17,7 @@ export default function Login() {
         try {
             await signInWithEmailAndPassword(auth, email, password)
             setMessage({ text: "Login successful!", type: "success" })
-            navigate("/userinfo") // chuyển đến trang thông tin người dùng
+            navigate("/app") // chuyển đến trang thông tin người dùng
         } catch (err: any) {
             setMessage({ text: "Login failed: Email, Password incorrect", type: "error" })
         }
@@ -25,7 +25,12 @@ export default function Login() {
 
     return (
         <div className="auth-container">
-            <h2>🔑 Login</h2>
+
+            <div className="login-header">
+                <h1>Student Time Management</h1>
+            </div>
+
+            <h2> 🔑 Login</h2>
             <input
                 placeholder="Abc@example.com"
                 value={email}

@@ -1,24 +1,18 @@
-body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    background-color: #49498b;
-}
-
 .auth-container {
+    align-items: center;
     max-width: 400px;
     padding: 2rem;
-    background: #2e2e4d;
+    background: #7979d2;
     border-radius: 10px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    margin: 10% auto;
     text-align: center;
 }
 
 .auth-container h2 {
     margin-bottom: 1.5rem;
     font-size: 1.8rem;
-    color: #e7faeb;
+    color: #50f5fe;
 }
 
 .auth-container input {
@@ -84,4 +78,10 @@ body {
 
 .auth-message.success {
     color: #5ff281;
+}
+
+.login-header h1 {
+    color: #50f5fe;
+    margin-bottom: 8px;
+    font-size: 2rem;
 }

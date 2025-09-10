@@ -1,8 +1,7 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { auth } from "../firebase"
+import { auth } from "../../Infrastructure/firebase"
 import { createUserWithEmailAndPassword } from "firebase/auth"
-import "./Auth.css"
 
 export default function Register() {
     const [email, setEmail] = useState("")
@@ -25,6 +24,11 @@ export default function Register() {
 
     return (
         <div className="auth-container">
+
+            <div className="login-header">
+                <h1>Student Time Management</h1>
+            </div>
+
             <h2>📝 Register</h2>
             <input
                 placeholder="Abc@example.com"

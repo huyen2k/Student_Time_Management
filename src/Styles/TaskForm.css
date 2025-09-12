@@ -34,10 +34,12 @@
 .form-group input,
 .form-group textarea,
 .form-group select {
-    border: 1px solid #ccc;
+    border: 1px solid #000000;
     border-radius: 6px;
     padding: 8px 10px;
     font-size: 0.95rem;
+    background: #fff;
+    color: #333;
 }
 
 .form-row {

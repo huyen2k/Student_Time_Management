@@ -2,6 +2,8 @@ import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useTasks } from "../Common/TaskContext"
 import "../../Styles/DashboardView.css"
+import type { Task } from "../../Data/Types"
+import { set } from "date-fns"
 
 interface DashboardStats {
     totalTasks: number
@@ -35,12 +37,19 @@ export default function DashboardView() {
             totalTasks: tasks.length,
             completedTasks,
             todayTasks,
-            weeklyStudyHours: tasks.reduce((sum, t) => sum + t.actualTime / 60, 0), // giờ học
+            weeklyStudyHours: tasks.reduce((sum, t) => sum + t.actualTime / 60, 0),
             completionRate: tasks.length ? Math.round((completedTasks / tasks.length) * 100) : 0,
         })
     }, [tasks])
 
-    const urgentTasks = tasks.filter(t => t.priority === "high")
+    const urgentTasks = [...tasks].sort((a, b) => {
+        const statusOrder = { "in-progress": 1, "pending": 1, "completed": 2 }
+        const statusDiff = statusOrder[a.status] - statusOrder[b.status]
+        if (statusDiff !== 0) return statusDiff
+
+        const priorityOrder = { "high": 1, "medium": 2, "low": 3 }
+        return priorityOrder[a.priority] - priorityOrder[b.priority]
+    })
 
     const formatTimeRemaining = (dueDate: string) => {
         const now = new Date()
@@ -79,7 +88,6 @@ export default function DashboardView() {
                 <div className="stat-card">
                     <h3>Completion Rate</h3>
                     <p className="stat-value">{stats.completionRate}%</p>
-                    <span>+5% from last week</span>
                 </div>
             </div>
 
@@ -106,14 +114,17 @@ export default function DashboardView() {
                             </div>
                             <span className="progress-label">{task.progress}%</span>
                         </div>
-                        <div className="task-action">
+                        <div className={`task-action`}>
                             <button
+                                className={`task-button ${task.status}`}
+                                disabled={task.status === "completed"}
                                 onClick={() => {
                                     beginTask(task.id)
-                                    navigate("/timer")
+                                    navigate("/app/timer")
                                 }}
                             >
-                                {task.status === "pending" ? "Start" : "Continue"}
+                                {task.status === "pending" ? "Start" :
+                                    task.status === "in-progress" ? "Continue" : "Completed"}
                             </button>
                         </div>
                     </div>

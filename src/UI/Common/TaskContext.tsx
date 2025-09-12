@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react"
-import { ref, onValue, set, remove, update } from "firebase/database"
+import { ref, onValue, set, remove, update, runTransaction } from "firebase/database"
 import { db } from "../../Infrastructure/firebase"
 import type { Task } from "../../Data/Types"
 
@@ -14,6 +14,8 @@ type TaskContextType = {
     completeTask: (id: string) => void
     stopTask: () => void
     updateProgress: (id: string, progress: number, completed?: boolean) => void
+    tickMinute: (id: string) => Promise<void>
+    stopTimer: () => void
 }
 
 const TaskContext = createContext<TaskContextType | undefined>(undefined)
@@ -85,8 +87,10 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
 
     // Complete task
     const completeTask = (id: string) => {
+        const target = id ?? activeTaskId
+        if (!target) return
         editTask(id, { status: "completed", progress: 100 })
-        if (id === activeTaskId) {
+        if (target === activeTaskId) {
             setIsRunning(false)
             setActiveTaskId(null)
         }
@@ -96,8 +100,43 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
     const updateProgress = (id: string, progress: number, completed = false) => {
         editTask(id, {
             progress,
-            status: completed ? "completed" : "in-progress",
+            status: completed ? "completed" : progress > 0 ? "in-progress" : "pending",
         })
+    }
+
+    const stopTimer = () => {
+        setIsRunning(false)
+    }
+
+    const tickMinute = async (id: string) => {
+        try {
+            const actualRef = ref(db, `tasks/${id}/actualTime`)
+            await runTransaction(actualRef, (current) => {
+                return (current || 0) + 1
+            })
+            const taskRef = ref(db, `tasks/${id}`)
+            const local = tasks.find((t) => t.id === id)
+            if (local) {
+                const newActual = (local.actualTime || 0) + 1
+                const est = local.estimatedTime || 1
+                const newProgress = Math.min(100, Math.round((newActual / est) * 100))
+                await update(taskRef, {
+                    actualTime: newActual,
+                    progress: newProgress,
+                    status: newProgress >= 100 ? "completed" : "in-progress",
+                })
+                if (newProgress >= 100) {
+                    if (id === activeTaskId) {
+                        setIsRunning(false)
+                        setActiveTaskId(null)
+                    }
+                }
+            } else {
+                // If not in local state (rare), still increment actualTime already done; optionally update progress later
+            }
+        } catch (err) {
+            console.error("tickMinute error:", err)
+        }
     }
 
     return (
@@ -113,6 +152,8 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
                 completeTask,
                 stopTask,
                 updateProgress,
+                tickMinute,
+                stopTimer,
             }}
         >
             {children}

@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { useLocation, useNavigate } from "react-router-dom";
 import Header from "./Layout/Header"
 import DashboardView from "./Tasks/DashboardView"
 import TasksView from "./Tasks/TasksView"
@@ -17,49 +18,55 @@ type View = "dashboard" | "tasks" | "calendar" | "timer" | "analytics"
 
 export default function TaskManager() {
     const [activeView, setActiveView] = useState<View>("dashboard")
+    const location = useLocation();
+    const navigate = useNavigate();
 
+    const currentPath = location.pathname.split('/')[2] || 'dashboard';
+    const handleNavigate = (view: string) => {
+        navigate(`/app/${view}`);
+    };
     return (
         <div className="main-app">
             <Header />
             <div className="main-nav">
                 <button
-                    className={`nav-btn ${activeView === "dashboard" ? "active" : ""}`}
-                    onClick={() => setActiveView("dashboard")}
+                    className={`nav-btn ${currentPath === "dashboard" ? "active" : ""}`}
+                    onClick={() => handleNavigate("dashboard")}
                 >
                     <FontAwesomeIcon icon={faHouse} /> Dashboard
                 </button>
                 <button
-                    className={`nav-btn ${activeView === "tasks" ? "active" : ""}`}
-                    onClick={() => setActiveView("tasks")}
+                    className={`nav-btn ${currentPath === "tasks" ? "active" : ""}`}
+                    onClick={() => handleNavigate("tasks")}
                 >
                     <FontAwesomeIcon icon={faList} /> Tasks
                 </button>
                 <button
-                    className={`nav-btn ${activeView === "calendar" ? "active" : ""}`}
-                    onClick={() => setActiveView("calendar")}
+                    className={`nav-btn ${currentPath === "calendar" ? "active" : ""}`}
+                    onClick={() => handleNavigate("calendar")}
                 >
                     <FontAwesomeIcon icon={faCalendar} /> Calendar
                 </button>
                 <button
-                    className={`nav-btn ${activeView === "timer" ? "active" : ""}`}
-                    onClick={() => setActiveView("timer")}
+                    className={`nav-btn ${currentPath === "timer" ? "active" : ""}`}
+                    onClick={() => handleNavigate("timer")}
                 >
                     <FontAwesomeIcon icon={faClock} /> Timer
                 </button>
                 <button
-                    className={`nav-btn ${activeView === "analytics" ? "active" : ""}`}
-                    onClick={() => setActiveView("analytics")}
+                    className={`nav-btn ${currentPath === "analytics" ? "active" : ""}`}
+                    onClick={() => handleNavigate("analytics")}
                 >
                     <FontAwesomeIcon icon={faChartSimple} /> Analytics
                 </button>
             </div>
 
             <div className="view-container">
-                {activeView === "dashboard" && <DashboardView />}
-                {activeView === "tasks" && <TasksView />}
-                {activeView === "calendar" && <CalendarView />}
-                {activeView === "timer" && <TimerView />}
-                {activeView === "analytics" && <AnalyticsView />}
+                {currentPath === "dashboard" && <DashboardView />}
+                {currentPath === "tasks" && <TasksView />}
+                {currentPath === "calendar" && <CalendarView />}
+                {currentPath === "timer" && <TimerView />}
+                {currentPath === "analytics" && <AnalyticsView />}
             </div>
         </div>
     )

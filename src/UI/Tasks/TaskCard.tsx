@@ -1,4 +1,7 @@
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import type { Task } from "../../Data/Types"
+import { faTrash } from "@fortawesome/free-solid-svg-icons/faTrash"
+import { faPenToSquare } from "@fortawesome/free-solid-svg-icons/faPenToSquare"
 
 type Props = {
   task: Task
@@ -26,8 +29,12 @@ export default function TaskCard({
       <div className="task-card-header">
         <h4>{task.title}</h4>
         <div className="task-actions">
-          <button onClick={() => onEdit(task)}>✏️</button>
-          <button onClick={() => onDelete(task.id)}>🗑️</button>
+          <button className="edit-button" onClick={() => onEdit(task)}>
+            <FontAwesomeIcon icon={faPenToSquare} />
+          </button>
+          <button className="delete-button" onClick={() => onDelete(task.id)}>
+            <FontAwesomeIcon icon={faTrash} />
+          </button>
         </div>
       </div>
 
@@ -37,21 +44,22 @@ export default function TaskCard({
       {/* Due Date */}
       {due && (
         <p className={`task-due ${isOverdue ? "overdue" : ""}`}>
-          Due: {due.toLocaleDateString()} {due.toLocaleTimeString()}
+          Due: {due.toLocaleDateString()}
         </p>
       )}
 
       {/* Footer */}
       <div className="task-footer">
+        <span className={`priority ${task.priority}`}>{task.priority}</span>
         {task.status !== "completed" ? (
           <>
-            <button onClick={() => onStart(task.id)}>
+            <button className="task-begin" onClick={() => onStart(task.id)}>
               {task.status === "pending" ? "Start" : "Continue"}
             </button>
-            <button onClick={() => onComplete(task.id)}>Complete</button>
+            <button className="task-end" onClick={() => onComplete(task.id)}>Complete</button>
           </>
         ) : (
-          <button onClick={() => onStatusChange(task.id, "in-progress")}>Reopen</button>
+          <button className="task-change" onClick={() => onStatusChange(task.id, "in-progress")}>Reopen</button>
         )}
       </div>
     </div>

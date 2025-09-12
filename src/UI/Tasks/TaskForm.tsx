@@ -25,14 +25,12 @@ export default function TaskForm({ task, onSubmit, onCancel }: Props) {
         title: "",
         description: "",
         subject: "",
-        priority: "medium",
+        priority: "low",
         dueDate: new Date().toISOString(),
         estimatedTime: 1,
         actualTime: 0,
         progress: 0,
         status: "pending",
-        due: undefined,
-        completed: undefined,
     })
 
     useEffect(() => {
@@ -47,8 +45,6 @@ export default function TaskForm({ task, onSubmit, onCancel }: Props) {
                 actualTime: task.actualTime,
                 progress: task.progress,
                 status: task.status,
-                due: task.due,
-                completed: task.completed,
             })
         }
     }, [task])

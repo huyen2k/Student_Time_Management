@@ -167,11 +167,12 @@ h2 {
 
 /* ===== TaskCard ===== */
 .task-card {
-  background: #094067;
+  background: #79C7FF;
   border-radius: 10px;
   padding: 1rem;
   margin-bottom: 1rem;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  display: grid;
 }
 
 .task-card-header {
@@ -179,7 +180,18 @@ h2 {
   justify-content: space-between;
   align-items: center;
   text-wrap: wrap;
-  color: #fffffe;
+  color: #252a2e;
+}
+
+.edit-button {
+  cursor: pointer;
+  font-size: 1.1rem;
+  margin-right: 0;
+}
+
+.delete-button {
+  cursor: pointer;
+  font-size: 1.1rem;
 }
 
 .task-actions button {
@@ -191,12 +203,12 @@ h2 {
 
 .task-desc {
   font-size: 0.9rem;
-  color: #d8eefe;
+  color: #5f6c7b;
 }
 
 .task-due {
   font-size: 0.8rem;
-  color: #aaa;
+  color: #000000;
 }
 
 .task-due.overdue {
@@ -213,12 +225,48 @@ h2 {
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  background: #3da9fc;
+  background: #3997D9;
   color: #fffffe;
 }
 
-.task-list-grid {
-  display: grid;
-  gap: 1rem;
-  margin-top: 1rem;
+.task-footer button:hover {
+  background: #2563eb;
+}
+
+.priority {
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  text-transform: capitalize;
+  margin-right: 5px;
+}
+
+.priority.low {
+  background: #c0ffd8;
+  color: #0a8a43;
+}
+
+.priority.medium {
+  background: #ffeeb8;
+  color: #856404;
+}
+
+.priority.high {
+  background: #ff7a85;
+  color: #5c020b;
+}
+
+.task-begin {
+  background-color: #4ade80;
+  margin-right: 5px;
+}
+
+.task-end {
+  background-color: #f87171;
+  margin-right: 5px;
+}
+
+.task-change {
+  background-color: #fbbf24;
+  margin-right: 5px;
 }

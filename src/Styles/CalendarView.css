@@ -56,11 +56,6 @@
     color: #b8b8b8;
 }
 
-.calendar-day.today {
-    border: 2px solid #2563eb;
-    background-color: #b4d3e9;
-}
-
 .calendar-day.selected {
     border: 2px solid #2563eb;
     background-color: #b4d3e9;

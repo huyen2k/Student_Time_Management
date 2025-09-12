@@ -120,7 +120,7 @@
     background: #ffffff;
     border-radius: 6px;
     height: 8px;
-    width: 280px;
+    width: 270px;
     margin: 6px 0;
     position: relative;
 }
@@ -145,6 +145,13 @@
     cursor: pointer;
 }
 
-.task-action button:hover {
+.task-button.completed {
+    color: white;
+    background: #ef3131;
+    cursor: not-allowed;
+}
+
+.task-button.pending:hover,
+.task-button.in-progress:hover {
     background: #ff9e2f;
 }

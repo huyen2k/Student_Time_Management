@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import "../../Styles/CalendarView.css"
 import {
     startOfMonth,
@@ -9,50 +9,13 @@ import {
     isToday,
     format,
 } from "date-fns"
-
-interface Task {
-    id: string
-    title: string
-    subject: string
-    priority: "low" | "medium" | "high"
-    dueDate: Date
-    status: "pending" | "in-progress" | "completed"
-}
+import { useTasks } from "../Common/TaskContext"
+import type { Task } from "../../Data/Types"
 
 export default function CalendarView() {
+    const { tasks } = useTasks()
     const [currentDate, setCurrentDate] = useState(new Date())
-    const [tasks, setTasks] = useState<Task[]>([])
     const [selectedDate, setSelectedDate] = useState<Date | null>(null)
-
-    useEffect(() => {
-        // Mock data (thay bằng Firebase sau)
-        setTasks([
-            {
-                id: "1",
-                title: "Math Assignment",
-                subject: "Mathematics",
-                priority: "high",
-                dueDate: new Date(2024, 11, 15),
-                status: "in-progress",
-            },
-            {
-                id: "2",
-                title: "Physics Lab",
-                subject: "Physics",
-                priority: "medium",
-                dueDate: new Date(2024, 11, 18),
-                status: "pending",
-            },
-            {
-                id: "3",
-                title: "English Essay",
-                subject: "English",
-                priority: "high",
-                dueDate: new Date(2024, 11, 20),
-                status: "completed",
-            },
-        ])
-    }, [])
 
     const monthStart = startOfMonth(currentDate)
     const monthEnd = endOfMonth(currentDate)
@@ -65,7 +28,7 @@ export default function CalendarView() {
         return date
     })
 
-    const totalCells = 42 // 6 × 7 grid
+    const totalCells = 42
     const trailingDays = Array.from(
         { length: totalCells - paddingDays.length - calendarDays.length },
         (_, i) => {
@@ -78,7 +41,9 @@ export default function CalendarView() {
     const allCalendarDays = [...paddingDays, ...calendarDays, ...trailingDays]
 
     const getTasksForDate = (date: Date) =>
-        tasks.filter((task) => isSameDay(task.dueDate, date))
+        tasks.filter((task: Task) =>
+            isSameDay(new Date(task.dueDate), date)
+        )
 
     const navigateMonth = (dir: "prev" | "next") => {
         setCurrentDate((prev) => {
@@ -86,6 +51,12 @@ export default function CalendarView() {
             newDate.setMonth(newDate.getMonth() + (dir === "next" ? 1 : -1))
             return newDate
         })
+    }
+
+    const goToToday = () => {
+        const today = new Date()
+        setCurrentDate(today)
+        setSelectedDate(today)
     }
 
     const selectedTasks = selectedDate ? getTasksForDate(selectedDate) : []
@@ -99,7 +70,7 @@ export default function CalendarView() {
                     <button onClick={() => navigateMonth("prev")}>◀</button>
                     <span>{format(currentDate, "MMMM yyyy")}</span>
                     <button onClick={() => navigateMonth("next")}>▶</button>
-                    <button onClick={() => setCurrentDate(new Date())}>Today</button>
+                    <button onClick={goToToday}>Today</button>
                 </div>
             </div>
 
@@ -121,10 +92,15 @@ export default function CalendarView() {
                         <div
                             key={idx}
                             className={`calendar-day 
-                ${isCurrent ? "" : "not-current"} 
-                ${isSel ? "selected" : ""} 
-                ${today ? "today" : ""}`}
-                            onClick={() => setSelectedDate(date)}
+    ${isCurrent ? "" : "not-current"} 
+    ${isSel ? "selected" : ""} 
+    ${today && isSel ? "today" : ""}`}
+                            onClick={() => {
+                                setSelectedDate(date)
+                                if (!isCurrent) {
+                                    setCurrentDate(date)
+                                }
+                            }}
                         >
                             <div className="date-num">{format(date, "d")}</div>
                             <div className="tasks-preview">

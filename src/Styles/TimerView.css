@@ -1,0 +1,132 @@
+.timer-container {
+    padding: 20px;
+}
+
+.timer-header h1 {
+    font-size: 2rem;
+    margin-bottom: 5px;
+}
+
+.timer-header p {
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.timer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+}
+
+.timer-box,
+.stats-box {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.timer-type {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.timer-type button {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    cursor: pointer;
+    background: #f9f9f9;
+}
+
+.timer-type button.active {
+    background: #2563eb;
+    color: #fff;
+}
+
+.timer-display {
+    font-size: 3rem;
+    text-align: center;
+    margin: 15px 0;
+    font-weight: bold;
+    font-family: monospace;
+}
+
+.custom-time {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+
+.custom-time label {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.9rem;
+}
+
+.custom-time input {
+    width: 70px;
+    padding: 6px;
+    text-align: center;
+}
+
+.task-select {
+    margin-bottom: 15px;
+}
+
+.task-select input {
+    width: 100%;
+    padding: 6px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+.timer-controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.timer-controls button {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    background: #2563eb;
+    color: #fff;
+}
+
+.timer-controls button:hover {
+    background: #1e4db7;
+}
+
+.stats-box h2 {
+    margin-bottom: 10px;
+    color: #094067;
+}
+
+.stats-box p {
+    margin-bottom: 15px;
+    color: #5f6c7b;
+}
+
+.stats-box h3 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    color: #094067;
+}
+
+.stats-box ul {
+    list-style: none;
+    padding: 0;
+    color: #094067
+}
+
+.stats-box li {
+    border-bottom: 1px solid #eee;
+    padding: 6px 0;
+    font-size: 0.9rem;
+}

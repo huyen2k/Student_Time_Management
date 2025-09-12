@@ -1,6 +1,6 @@
 import { db, auth } from "../Infrastructure/firebase"
 import { ref, push, update, remove, onValue } from "firebase/database"
-import type { Task } from "./types"
+import type { Task } from "../Data/Types"
 
 export function listenTasks(callback: (tasks: Task[]) => void) {
     if (!auth.currentUser) return () => { }

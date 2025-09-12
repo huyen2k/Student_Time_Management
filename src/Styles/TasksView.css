@@ -1,0 +1,163 @@
+.tasks-container {
+    padding: 20px;
+}
+
+.tasks-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.tasks-header h1 {
+    font-size: 1.8rem;
+    margin: 0;
+}
+
+.tasks-header p {
+    color: #666;
+    margin: 0;
+}
+
+.btn {
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+}
+
+.btn.primary {
+    background: #2563eb;
+    color: #fff;
+}
+
+.filters {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.filters input,
+.filters select {
+    padding: 6px 8px;
+    border: 1px solid #7d7474;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-family: inherit;
+}
+
+.tasks-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.no-tasks {
+    text-align: center;
+    color: #777;
+    margin-top: 20px;
+}
+
+/* Popup form */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    pointer-events: auto;
+}
+
+.form-popup {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 600px;
+    width: 100%;
+    z-index: 1001;
+}
+
+body.modal-open {
+    overflow: hidden;
+}
+
+/* ===== TasksView ===== */
+.task-form {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.task-form input,
+.task-form button {
+    padding: 0.6rem;
+    border-radius: 6px;
+    border: none;
+}
+
+.task-form input {
+    flex: 1;
+    background: #1a2238;
+    color: #fff;
+}
+
+.task-form button {
+    background: #4fc3f7;
+    color: #000;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.task-form button:hover {
+    background: #29b6f6;
+}
+
+.task-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.task-item {
+    background: #0d1528;
+    margin-bottom: 0.6rem;
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.task-item input[type="checkbox"] {
+    transform: scale(1.2);
+}
+
+.task-meta {
+    flex: 1;
+}
+
+.task-meta small {
+    display: block;
+    color: #aaa;
+    font-size: 0.8rem;
+}
+
+.task-item button {
+    background: transparent;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: #f88;
+}
+
+.task-item .done {
+    text-decoration: line-through;
+    color: #888;
+}

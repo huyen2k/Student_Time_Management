@@ -1,0 +1,235 @@
+{
+    "tasks": {
+        "1": {
+            "title": "Math Homework - Algebra",
+            "description": "Complete exercises 1-20 from textbook",
+            "subject": "Math",
+            "priority": "high",
+            "dueDate": "2025-09-15T18:00:00Z",
+            "estimatedTime": 2,
+            "actualTime": 1,
+            "progress": 50,
+            "status": "in-progress"
+        },
+        "2": {
+            "title": "English Essay Draft",
+            "description": "Write draft for essay on climate change",
+            "subject": "English",
+            "priority": "medium",
+            "dueDate": "2025-09-20T23:59:00Z",
+            "estimatedTime": 3,
+            "actualTime": 0,
+            "progress": 0,
+            "status": "pending"
+        },
+        "3": {
+            "title": "Physics Lab Report",
+            "description": "Lab on Newton's Second Law",
+            "subject": "Physics",
+            "priority": "high",
+            "dueDate": "2025-09-17T16:00:00Z",
+            "estimatedTime": 4,
+            "actualTime": 2,
+            "progress": 60,
+            "status": "in-progress"
+        },
+        "4": {
+            "title": "History Reading",
+            "description": "Read chapter 10 about World War II",
+            "subject": "History",
+            "priority": "low",
+            "dueDate": "2025-09-25T12:00:00Z",
+            "estimatedTime": 1,
+            "actualTime": 0,
+            "progress": 0,
+            "status": "pending"
+        },
+        "5": {
+            "title": "Chemistry Assignment",
+            "description": "Solve problems on chemical bonding",
+            "subject": "Chemistry",
+            "priority": "medium",
+            "dueDate": "2025-09-18T15:00:00Z",
+            "estimatedTime": 2,
+            "actualTime": 2,
+            "progress": 100,
+            "status": "completed"
+        },
+        "6": {
+            "title": "Biology Project Research",
+            "description": "Research genetics case study",
+            "subject": "Biology",
+            "priority": "high",
+            "dueDate": "2025-09-22T14:00:00Z",
+            "estimatedTime": 5,
+            "actualTime": 1,
+            "progress": 20,
+            "status": "in-progress"
+        },
+        "7": {
+            "title": "Computer Science Coding",
+            "description": "Implement sorting algorithms in Java",
+            "subject": "CS",
+            "priority": "high",
+            "dueDate": "2025-09-19T20:00:00Z",
+            "estimatedTime": 3,
+            "actualTime": 2,
+            "progress": 70,
+            "status": "in-progress"
+        },
+        "8": {
+            "title": "Geography Map Work",
+            "description": "Label major rivers and mountains",
+            "subject": "Geography",
+            "priority": "low",
+            "dueDate": "2025-09-24T10:00:00Z",
+            "estimatedTime": 1,
+            "actualTime": 0,
+            "progress": 0,
+            "status": "pending"
+        },
+        "9": {
+            "title": "Art Sketch",
+            "description": "Sketch for portrait assignment",
+            "subject": "Art",
+            "priority": "medium",
+            "dueDate": "2025-09-21T18:00:00Z",
+            "estimatedTime": 2,
+            "actualTime": 0,
+            "progress": 0,
+            "status": "pending"
+        },
+        "10": {
+            "title": "Music Practice",
+            "description": "Practice piano scales",
+            "subject": "Music",
+            "priority": "low",
+            "dueDate": "2025-09-23T09:00:00Z",
+            "estimatedTime": 1,
+            "actualTime": 0,
+            "progress": 0,
+            "status": "pending"
+        },
+        "11": {
+            "title": "Economics Notes",
+            "description": "Summarize chapter on demand and supply",
+            "subject": "Economics",
+            "priority": "medium",
+            "dueDate": "2025-09-26T14:00:00Z",
+            "estimatedTime": 2,
+            "actualTime": 0,
+            "progress": 0,
+            "status": "pending"
+        },
+        "12": {
+            "title": "French Vocabulary",
+            "description": "Memorize 50 new words",
+            "subject": "French",
+            "priority": "medium",
+            "dueDate": "2025-09-27T11:00:00Z",
+            "estimatedTime": 2,
+            "actualTime": 1,
+            "progress": 50,
+            "status": "in-progress"
+        },
+        "13": {
+            "title": "PE Workout Log",
+            "description": "Log 5km run and stretching",
+            "subject": "PE",
+            "priority": "low",
+            "dueDate": "2025-09-15T07:00:00Z",
+            "estimatedTime": 1,
+            "actualTime": 1,
+            "progress": 100,
+            "status": "completed"
+        },
+        "14": {
+            "title": "Programming Project",
+            "description": "Build a to-do list app",
+            "subject": "CS",
+            "priority": "high",
+            "dueDate": "2025-09-30T23:59:00Z",
+            "estimatedTime": 6,
+            "actualTime": 2,
+            "progress": 30,
+            "status": "in-progress"
+        },
+        "15": {
+            "title": "Math Revision - Calculus",
+            "description": "Review integration techniques",
+            "subject": "Math",
+            "priority": "high",
+            "dueDate": "2025-09-28T17:00:00Z",
+            "estimatedTime": 4,
+            "actualTime": 0,
+            "progress": 0,
+            "status": "pending"
+        },
+        "16": {
+            "title": "Chemistry Lab Prep",
+            "description": "Prepare materials for acid-base titration",
+            "subject": "Chemistry",
+            "priority": "medium",
+            "dueDate": "2025-09-16T10:00:00Z",
+            "estimatedTime": 2,
+            "actualTime": 1,
+            "progress": 50,
+            "status": "in-progress"
+        },
+        "17": {
+            "title": "Biology Diagram Drawing",
+            "description": "Draw cell structure diagram",
+            "subject": "Biology",
+            "priority": "low",
+            "dueDate": "2025-09-18T12:00:00Z",
+            "estimatedTime": 1,
+            "actualTime": 1,
+            "progress": 100,
+            "status": "completed"
+        },
+        "18": {
+            "title": "Philosophy Essay Outline",
+            "description": "Outline essay on existentialism",
+            "subject": "Philosophy",
+            "priority": "medium",
+            "dueDate": "2025-09-29T22:00:00Z",
+            "estimatedTime": 3,
+            "actualTime": 0,
+            "progress": 0,
+            "status": "pending"
+        },
+        "19": {
+            "title": "Math Practice Test",
+            "description": "Simulate test under timed conditions",
+            "subject": "Math",
+            "priority": "high",
+            "dueDate": "2025-09-19T08:00:00Z",
+            "estimatedTime": 2,
+            "actualTime": 0,
+            "progress": 0,
+            "status": "pending"
+        },
+        "20": {
+            "title": "Literature Analysis",
+            "description": "Analyze Shakespeare's sonnet 18",
+            "subject": "English",
+            "priority": "medium",
+            "dueDate": "2025-09-21T15:00:00Z",
+            "estimatedTime": 2,
+            "actualTime": 1,
+            "progress": 40,
+            "status": "in-progress"
+        },
+        "21": {
+            "title": "Computer Science Quiz Prep",
+            "description": "Review data structures",
+            "subject": "CS",
+            "priority": "high",
+            "dueDate": "2025-09-20T18:00:00Z",
+            "estimatedTime": 2,
+            "actualTime": 0,
+            "progress": 0,
+            "status": "pending"
+        }
+    }
+}

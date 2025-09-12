@@ -1,5 +1,5 @@
 .app-header {
-    background: #ffffff;
+    background: #79C7FF;
     border-bottom: 1px solid #e2e8f0;
     padding: 0 20px;
     box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
@@ -12,6 +12,7 @@
     max-width: 1200px;
     margin: 0 auto;
     height: 60px;
+    font-weight: bold;
 }
 
 .user-info {

@@ -1,97 +1,138 @@
-import { useEffect, useState } from "react"
-import { listenTasks, addTask, updateTask, deleteTask } from "../../core/taskService"
-import type { Task } from "../../Core/types"
+import { useState } from "react"
+import "../../Styles/TasksView.css"
 import TaskForm from "./TaskForm"
 import TaskCard from "./TaskCard"
-import CalendarView from "./CalendarView"
-import Modal from "../Common/Modal"
+import { useTasks } from "../Common/TaskContext"
+import { useNavigate } from "react-router-dom"
+
 
 export default function TasksView() {
-    const [tasks, setTasks] = useState<Task[]>([])
-    const [editing, setEditing] = useState<Task | null>(null)
+    const { tasks, addTask, editTask, deleteTask, beginTask, completeTask } = useTasks()
+    const navigate = useNavigate()
+
+    const [searchTerm, setSearchTerm] = useState("")
+    const [subjectFilter, setSubjectFilter] = useState("all")
+    const [statusFilter, setStatusFilter] = useState("all")
+    const [priorityFilter, setPriorityFilter] = useState("all")
     const [showForm, setShowForm] = useState(false)
+    const [editingTask, setEditingTask] = useState<any>(undefined)
 
-    useEffect(() => {
-        const unsub = listenTasks((arr) => {
-            const sorted = arr.sort((a, b) => (a.due || "").localeCompare(b.due || ""))
-            setTasks(sorted)
-        })
-        return () => unsub()
-    }, [])
-
-    async function handleSave(task: Omit<Task, "id">) {
-        if (editing) {
-            await updateTask(editing.id, task)
-            setEditing(null)
-        } else {
-            await addTask(task)
+    // Lọc task
+    const filteredTasks = tasks.filter((task) => {
+        let ok = true
+        if (searchTerm) {
+            ok =
+                task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                task.subject.toLowerCase().includes(searchTerm.toLowerCase())
         }
-        setShowForm(false)
-    }
+        if (ok && subjectFilter !== "all") ok = task.subject === subjectFilter
+        if (ok && statusFilter !== "all") ok = task.status === statusFilter
+        if (ok && priorityFilter !== "all") ok = task.priority === priorityFilter
+        return ok
+    })
 
-    async function handleDelete(id: string) {
-        if (confirm("Bạn có chắc muốn xoá nhiệm vụ này?")) {
-            await deleteTask(id)
-        }
-    }
-
-    async function handleStatusChange(id: string, status: Task["status"]) {
-        await updateTask(id, { status })
-    }
+    const subjects = [...new Set(tasks.map((t) => t.subject))]
 
     return (
-        <div className="view active">
-            <h2>📋 Nhiệm vụ</h2>
+        <div className="tasks-container">
+            {/* Header */}
+            <div className="tasks-header">
+                <div>
+                    <h1>Tasks</h1>
+                    <p>Manage your assignments and study tasks</p>
+                </div>
+                <button
+                    className="btn primary"
+                    onClick={() => {
+                        setEditingTask(undefined)
+                        setShowForm(true)
+                    }}
+                >
+                    + Add Task
+                </button>
+            </div>
 
-            <button className="btn-primary" onClick={() => setShowForm(true)}>
-                ➕ Thêm nhiệm vụ
-            </button>
+            {/* Search + Filters */}
+            <div className="filters">
+                <input
+                    type="text"
+                    placeholder="Search tasks..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
 
-            <div className="task-list-grid">
-                {tasks.map((t) => (
+                <select value={subjectFilter} onChange={(e) => setSubjectFilter(e.target.value)}>
+                    <option value="all">All Subjects</option>
+                    {subjects.map((s) => (
+                        <option key={s} value={s}>
+                            {s}
+                        </option>
+                    ))}
+                </select>
+
+                <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+                    <option value="all">All Status</option>
+                    <option value="pending">Pending</option>
+                    <option value="in-progress">In Progress</option>
+                    <option value="completed">Completed</option>
+                </select>
+
+                <select value={priorityFilter} onChange={(e) => setPriorityFilter(e.target.value)}>
+                    <option value="all">All Priority</option>
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
+                </select>
+            </div>
+
+            {/* Task list */}
+            <div className="tasks-grid">
+                {filteredTasks.map((task) => (
                     <TaskCard
-                        key={t.id}
-                        task={t}
+                        key={task.id}
+                        task={task}
                         onEdit={(t) => {
-                            setEditing(t)
+                            setEditingTask(t)
                             setShowForm(true)
                         }}
-                        onDelete={handleDelete}
-                        onStatusChange={handleStatusChange}
+                        onDelete={(id) => deleteTask(id)}
+                        onStart={(id) => {
+                            beginTask(id)
+                            navigate("/timer")
+                        }}
+                        onComplete={(id) => completeTask(id)}
+                        onStatusChange={(id, status) => editTask(id, { status })}
                     />
                 ))}
             </div>
 
-            <hr style={{ margin: "2rem 0", borderColor: "#333" }} />
+            {filteredTasks.length === 0 && (
+                <div className="no-tasks">No tasks found matching your criteria.</div>
+            )}
 
-            <h3>📅 Lịch nhiệm vụ</h3>
-            <CalendarView
-                tasks={tasks}
-                onEdit={(t) => {
-                    setEditing(t)
-                    setShowForm(true)
-                }}
-                onStatusChange={handleStatusChange}
-            />
-
-            {/* Modal cho TaskForm */}
-            <Modal
-                open={showForm}
-                title={editing ? "Chỉnh sửa nhiệm vụ" : "Thêm nhiệm vụ"}
-                onClose={() => {
-                    setEditing(null)
-                    setShowForm(false)
-                }}
-            >
-                <TaskForm
-                    task={editing ?? undefined}
-                    onSave={handleSave}
-                    onCancel={() => {
-                        setEditing(null)
-                        setShowForm(false)
-                    }}
-                />
-            </Modal>
+            {/* Popup form */}
+            {showForm && (
+                <div className="overlay">
+                    <div className="form-popup">
+                        <TaskForm
+                            task={editingTask}
+                            onSubmit={(data) => {
+                                if (editingTask) {
+                                    editTask(editingTask.id, data)
+                                } else {
+                                    addTask(data)
+                                }
+                                setShowForm(false)
+                                setEditingTask(undefined)
+                            }}
+                            onCancel={() => {
+                                setShowForm(false)
+                                setEditingTask(undefined)
+                            }}
+                        />
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

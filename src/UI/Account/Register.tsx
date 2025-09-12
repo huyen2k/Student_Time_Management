@@ -1,7 +1,6 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { auth } from "../../Infrastructure/firebase"
-import { createUserWithEmailAndPassword } from "firebase/auth"
+import { register } from "../../Core/authService"
 
 export default function Register() {
     const [email, setEmail] = useState("")
@@ -12,9 +11,9 @@ export default function Register() {
     })
     const navigate = useNavigate()
 
-    async function register() {
+    async function handleRegister() {
         try {
-            await createUserWithEmailAndPassword(auth, email, password)
+            await register(email, password)
             setMessage({ text: "Register success! Please login.", type: "success" })
             navigate("/") // quay lại login
         } catch (err: any) {
@@ -47,7 +46,7 @@ export default function Register() {
             )}
 
             <div className="btn-group">
-                <button onClick={register}>Register</button>
+                <button onClick={handleRegister}>Register</button>
                 <button onClick={() => navigate("/")}>Back to Login</button>
             </div>
         </div>

@@ -1,0 +1,150 @@
+/* ===== Header ===== */
+.dashboard {
+    padding: 20px;
+}
+
+.dashboard-header h1 {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.dashboard-header p {
+    color: #666;
+}
+
+/* ===== Statistics Section ===== */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.stat-card {
+    background: #fffffe;
+    padding: 15px;
+    border-radius: 20px;
+    box-shadow: 0 2px 6px rgba(160, 129, 129, 0.819);
+    text-align: center;
+    align-items: center;
+    gap: 1rem;
+}
+
+.stat-card h3 {
+    font-size: 0.95rem;
+    margin-bottom: 5px;
+    color: #094067;
+}
+
+.stat-value {
+    font-size: 1.6rem;
+    font-weight: bold;
+    margin: 5px 0;
+    color: #5f6c7b;
+}
+
+.stat-card span {
+    color: #0091ff;
+    font-size: 0.8rem;
+}
+
+/* ===== Urgent Tasks Section ===== */
+.urgent-tasks {
+    margin-top: 30px;
+}
+
+.urgent-tasks h2 {
+    margin-bottom: 15px;
+    font-size: 1.3rem;
+    color: #094067;
+}
+
+.urgent-task-card {
+    display: flex;
+    justify-content: space-between;
+    background: #FFEFD6;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 12px;
+    align-items: center;
+}
+
+.task-info {
+    flex: 1;
+}
+
+.task-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.task-title h3 {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.priority {
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    text-transform: capitalize;
+}
+
+.priority.low {
+    background: #c0ffd8;
+    color: #0a8a43;
+}
+
+.priority.medium {
+    background: #ffeeb8;
+    color: #856404;
+}
+
+.priority.high {
+    background: #ff7a85;
+    color: #5c020b;
+}
+
+.task-meta {
+    margin: 6px 0;
+    color: #666;
+    font-size: 0.85rem;
+    display: flex;
+    gap: 12px;
+}
+
+.progress-bar {
+    background: #ffffff;
+    border-radius: 6px;
+    height: 8px;
+    width: 280px;
+    margin: 6px 0;
+    position: relative;
+}
+
+.progress-fill {
+    background: #79C7FF;
+    height: 100%;
+    border-radius: 6px;
+}
+
+.progress-label {
+    font-size: 0.8rem;
+    color: #444;
+}
+
+.task-action button {
+    background: #FFBC70;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.task-action button:hover {
+    background: #ff9e2f;
+}

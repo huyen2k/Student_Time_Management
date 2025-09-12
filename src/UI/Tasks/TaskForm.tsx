@@ -1,63 +1,197 @@
-import { useState } from "react"
-import type { Task } from "../../Core/types"
+import { useState, useEffect } from "react"
+import type { Task, TaskPriority, TaskStatus } from "../../Data/Types"
+import "../../Styles/TaskForm.css"
 
 type Props = {
     task?: Task
-    onSave: (t: Omit<Task, "id">) => void
+    onSubmit: (task: Omit<Task, "id">) => void
     onCancel: () => void
 }
 
-export default function TaskForm({ task, onSave, onCancel }: Props) {
-    const [title, setTitle] = useState(task?.title || "")
-    const [description, setDescription] = useState(task?.description || "")
-    const [due, setDue] = useState(task?.due ? task.due.slice(0, 16) : "")
-    const [error, setError] = useState("")
+const subjects = [
+    "Mathematics",
+    "Physics",
+    "Chemistry",
+    "Biology",
+    "English",
+    "History",
+    "Geography",
+    "Computer Science",
+    "Other",
+]
 
-    function handleSubmit(e: React.FormEvent) {
+export default function TaskForm({ task, onSubmit, onCancel }: Props) {
+    const [formData, setFormData] = useState<Omit<Task, "id">>({
+        title: "",
+        description: "",
+        subject: "",
+        priority: "medium",
+        dueDate: new Date().toISOString(),
+        estimatedTime: 1,
+        actualTime: 0,
+        progress: 0,
+        status: "pending",
+        due: undefined,
+        completed: undefined,
+    })
+
+    useEffect(() => {
+        if (task) {
+            setFormData({
+                title: task.title,
+                description: task.description || "",
+                subject: task.subject,
+                priority: task.priority,
+                dueDate: task.dueDate,
+                estimatedTime: task.estimatedTime,
+                actualTime: task.actualTime,
+                progress: task.progress,
+                status: task.status,
+                due: task.due,
+                completed: task.completed,
+            })
+        }
+    }, [task])
+
+    const handleChange = (field: keyof typeof formData, value: any) => {
+        setFormData((prev) => ({ ...prev, [field]: value }))
+    }
+
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
-        if (!title.trim()) {
-            setError("Tên nhiệm vụ bắt buộc")
-            return
-        }
-        if (!due) {
-            setError("Ngày hạn bắt buộc")
-            return
-        }
-        onSave({
-            title,
-            description,
-            due: new Date(due).toISOString(),
-            completed: task?.completed || false,
-            status: task?.status || "todo",
-        })
+        if (!formData.title.trim() || !formData.subject) return
+        onSubmit(formData)
     }
 
     return (
-        <form className="task-form" onSubmit={handleSubmit}>
-            <input
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Tên nhiệm vụ"
-            />
-            <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Mô tả"
-            />
-            <input
-                type="datetime-local"
-                value={due}
-                onChange={(e) => setDue(e.target.value)}
-            />
+        <div className="task-form-container">
+            <h2>{task ? "Edit Task" : "Create New Task"}</h2>
+            <form onSubmit={handleSubmit} className="task-form">
+                {/* Title */}
+                <div className="form-group">
+                    <label>Task Title *</label>
+                    <input
+                        type="text"
+                        value={formData.title}
+                        onChange={(e) => handleChange("title", e.target.value)}
+                        required
+                    />
+                </div>
 
-            {error && <p className="form-error">{error}</p>}
+                {/* Description */}
+                <div className="form-group">
+                    <label>Description</label>
+                    <textarea
+                        rows={3}
+                        value={formData.description}
+                        onChange={(e) => handleChange("description", e.target.value)}
+                    />
+                </div>
 
-            <div className="form-buttons">
-                <button type="submit">{task ? "Cập nhật" : "Thêm"}</button>
-                <button type="button" onClick={onCancel}>
-                    Huỷ
-                </button>
-            </div>
-        </form>
+                {/* Subject + Priority */}
+                <div className="form-row">
+                    <div className="form-group">
+                        <label>Subject *</label>
+                        <select
+                            value={formData.subject}
+                            onChange={(e) => handleChange("subject", e.target.value)}
+                            required
+                        >
+                            <option value="">-- Select subject --</option>
+                            {subjects.map((s) => (
+                                <option key={s} value={s}>
+                                    {s}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div className="form-group">
+                        <label>Priority</label>
+                        <select
+                            value={formData.priority}
+                            onChange={(e) =>
+                                handleChange("priority", e.target.value as TaskPriority)
+                            }
+                        >
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                </div>
+
+                {/* Due Date + Estimated Time */}
+                <div className="form-row">
+                    <div className="form-group">
+                        <label>Due Date *</label>
+                        <input
+                            type="date"
+                            value={formData.dueDate.slice(0, 10)}
+                            onChange={(e) => {
+                                const date = new Date(e.target.value)
+                                handleChange("dueDate", date.toISOString())
+                            }}
+                            required
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label>Estimated Time (hours)</label>
+                        <input
+                            type="number"
+                            min="0.5"
+                            step="0.5"
+                            value={formData.estimatedTime}
+                            onChange={(e) =>
+                                handleChange("estimatedTime", Number(e.target.value) || 1)
+                            }
+                        />
+                    </div>
+                </div>
+
+                {/* Progress + Status (only when editing) */}
+                {task && (
+                    <div className="form-row">
+                        <div className="form-group">
+                            <label>Progress (%)</label>
+                            <input
+                                type="number"
+                                min="0"
+                                max="100"
+                                value={formData.progress}
+                                onChange={(e) =>
+                                    handleChange("progress", Number(e.target.value) || 0)
+                                }
+                            />
+                        </div>
+
+                        <div className="form-group">
+                            <label>Status</label>
+                            <select
+                                value={formData.status}
+                                onChange={(e) =>
+                                    handleChange("status", e.target.value as TaskStatus)
+                                }
+                            >
+                                <option value="pending">Pending</option>
+                                <option value="in-progress">In Progress</option>
+                                <option value="completed">Completed</option>
+                            </select>
+                        </div>
+                    </div>
+                )}
+
+                {/* Buttons */}
+                <div className="form-buttons">
+                    <button type="button" className="btn cancel" onClick={onCancel}>
+                        Cancel
+                    </button>
+                    <button type="submit" className="btn submit">
+                        {task ? "Update Task" : "Create Task"}
+                    </button>
+                </div>
+            </form>
+        </div>
     )
 }

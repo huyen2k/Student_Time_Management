@@ -1,87 +1,175 @@
-import { useState } from "react"
-import type { Task } from "../../Core/types"
+import { useState, useEffect } from "react"
+import "../../Styles/CalendarView.css"
+import {
+    startOfMonth,
+    endOfMonth,
+    eachDayOfInterval,
+    isSameMonth,
+    isSameDay,
+    isToday,
+    format,
+} from "date-fns"
 
-type Props = {
-    tasks: Task[]
-    onEdit: (t: Task) => void
-    onStatusChange: (id: string, status: Task["status"]) => void
+interface Task {
+    id: string
+    title: string
+    subject: string
+    priority: "low" | "medium" | "high"
+    dueDate: Date
+    status: "pending" | "in-progress" | "completed"
 }
 
-export default function CalendarView({ tasks, onEdit, onStatusChange }: Props) {
-    const [current, setCurrent] = useState(new Date())
-    const [selected, setSelected] = useState<Date | null>(null)
+export default function CalendarView() {
+    const [currentDate, setCurrentDate] = useState(new Date())
+    const [tasks, setTasks] = useState<Task[]>([])
+    const [selectedDate, setSelectedDate] = useState<Date | null>(null)
 
-    const start = new Date(current.getFullYear(), current.getMonth(), 1)
-    const end = new Date(current.getFullYear(), current.getMonth() + 1, 0)
+    useEffect(() => {
+        // Mock data (thay bằng Firebase sau)
+        setTasks([
+            {
+                id: "1",
+                title: "Math Assignment",
+                subject: "Mathematics",
+                priority: "high",
+                dueDate: new Date(2024, 11, 15),
+                status: "in-progress",
+            },
+            {
+                id: "2",
+                title: "Physics Lab",
+                subject: "Physics",
+                priority: "medium",
+                dueDate: new Date(2024, 11, 18),
+                status: "pending",
+            },
+            {
+                id: "3",
+                title: "English Essay",
+                subject: "English",
+                priority: "high",
+                dueDate: new Date(2024, 11, 20),
+                status: "completed",
+            },
+        ])
+    }, [])
 
-    const days: Date[] = []
-    for (let i = 1; i <= end.getDate(); i++) {
-        days.push(new Date(current.getFullYear(), current.getMonth(), i))
+    const monthStart = startOfMonth(currentDate)
+    const monthEnd = endOfMonth(currentDate)
+    const calendarDays = eachDayOfInterval({ start: monthStart, end: monthEnd })
+
+    const firstDayOfWeek = monthStart.getDay()
+    const paddingDays = Array.from({ length: firstDayOfWeek }, (_, i) => {
+        const date = new Date(monthStart)
+        date.setDate(date.getDate() - (firstDayOfWeek - i))
+        return date
+    })
+
+    const totalCells = 42 // 6 × 7 grid
+    const trailingDays = Array.from(
+        { length: totalCells - paddingDays.length - calendarDays.length },
+        (_, i) => {
+            const date = new Date(monthEnd)
+            date.setDate(date.getDate() + i + 1)
+            return date
+        }
+    )
+
+    const allCalendarDays = [...paddingDays, ...calendarDays, ...trailingDays]
+
+    const getTasksForDate = (date: Date) =>
+        tasks.filter((task) => isSameDay(task.dueDate, date))
+
+    const navigateMonth = (dir: "prev" | "next") => {
+        setCurrentDate((prev) => {
+            const newDate = new Date(prev)
+            newDate.setMonth(newDate.getMonth() + (dir === "next" ? 1 : -1))
+            return newDate
+        })
     }
 
-    function getTasksForDay(day: Date) {
-        return tasks.filter(
-            (t) => t.due && new Date(t.due).toDateString() === day.toDateString()
-        )
-    }
+    const selectedTasks = selectedDate ? getTasksForDate(selectedDate) : []
 
     return (
-        <div className="calendar-view">
+        <div className="calendar-container">
+            {/* Header */}
             <div className="calendar-header">
-                <button onClick={() => setCurrent(new Date(current.getFullYear(), current.getMonth() - 1, 1))}>
-                    ◀
-                </button>
-                <h3>
-                    {current.toLocaleString("default", { month: "long" })} {current.getFullYear()}
-                </h3>
-                <button onClick={() => setCurrent(new Date(current.getFullYear(), current.getMonth() + 1, 1))}>
-                    ▶
-                </button>
+                <h1>Calendar</h1>
+                <div className="calendar-controls">
+                    <button onClick={() => navigateMonth("prev")}>◀</button>
+                    <span>{format(currentDate, "MMMM yyyy")}</span>
+                    <button onClick={() => navigateMonth("next")}>▶</button>
+                    <button onClick={() => setCurrentDate(new Date())}>Today</button>
+                </div>
             </div>
 
+            {/* Calendar grid */}
             <div className="calendar-grid">
-                {days.map((day) => {
-                    const has = getTasksForDay(day)
+                {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+                    <div key={day} className="day-header">
+                        {day}
+                    </div>
+                ))}
+
+                {allCalendarDays.map((date, idx) => {
+                    const dayTasks = getTasksForDate(date)
+                    const isCurrent = isSameMonth(date, currentDate)
+                    const isSel = selectedDate && isSameDay(date, selectedDate)
+                    const today = isToday(date)
+
                     return (
                         <div
-                            key={day.toISOString()}
-                            className={`calendar-day ${selected?.toDateString() === day.toDateString() ? "selected" : ""}`}
-                            onClick={() => setSelected(day)}
+                            key={idx}
+                            className={`calendar-day 
+                ${isCurrent ? "" : "not-current"} 
+                ${isSel ? "selected" : ""} 
+                ${today ? "today" : ""}`}
+                            onClick={() => setSelectedDate(date)}
                         >
-                            <span>{day.getDate()}</span>
-                            {has.length > 0 && <span className="dot"></span>}
+                            <div className="date-num">{format(date, "d")}</div>
+                            <div className="tasks-preview">
+                                {dayTasks.slice(0, 2).map((t) => (
+                                    <div
+                                        key={t.id}
+                                        className={`task-dot ${t.priority}`}
+                                        title={t.title}
+                                    ></div>
+                                ))}
+                                {dayTasks.length > 2 && (
+                                    <span className="more">+{dayTasks.length - 2}</span>
+                                )}
+                            </div>
                         </div>
                     )
                 })}
             </div>
 
-            {selected && (
-                <div className="calendar-tasks">
-                    <h4>Nhiệm vụ ngày {selected.toLocaleDateString()}</h4>
-                    <ul>
-                        {getTasksForDay(selected).map((t) => (
-                            <li key={t.id}>
-                                {t.title} - {t.status}
-                                <button onClick={() => onEdit(t)}>✏️</button>
-                                <button
-                                    onClick={() =>
-                                        onStatusChange(
-                                            t.id,
-                                            t.status === "todo"
-                                                ? "in-progress"
-                                                : t.status === "in-progress"
-                                                    ? "completed"
-                                                    : "todo"
-                                        )
-                                    }
-                                >
-                                    Đổi trạng thái
-                                </button>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            )}
+            {/* Selected date tasks */}
+            <div className="selected-tasks">
+                <h2>
+                    {selectedDate
+                        ? format(selectedDate, "MMM d, yyyy")
+                        : "Select a date"}
+                </h2>
+                {selectedDate ? (
+                    selectedTasks.length > 0 ? (
+                        <ul>
+                            {selectedTasks.map((t) => (
+                                <li key={t.id} className={`task-item ${t.status}`}>
+                                    <div>
+                                        <strong>{t.title}</strong> <span>({t.subject})</span>
+                                    </div>
+                                    <span className="status">{t.status}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p>No tasks for this date</p>
+                    )
+                ) : (
+                    <p>Click on a date to view tasks</p>
+                )}
+            </div>
         </div>
     )
 }

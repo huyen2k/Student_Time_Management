@@ -1,7 +1,6 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { auth } from "../../Infrastructure/firebase"
-import { signInWithEmailAndPassword } from "firebase/auth"
+import { login } from "../../Core/authService"
 import "../../Styles/Account.css"
 
 export default function Login() {
@@ -13,9 +12,9 @@ export default function Login() {
         type: "",
     })
 
-    async function login() {
+    async function handleLogin() {
         try {
-            await signInWithEmailAndPassword(auth, email, password)
+            await login(email, password)
             setMessage({ text: "Login successful!", type: "success" })
             navigate("/app") // chuyển đến trang thông tin người dùng
         } catch (err: any) {
@@ -48,7 +47,7 @@ export default function Login() {
             )}
 
             <div className="btn-group">
-                <button onClick={login}>Login</button>
+                <button onClick={handleLogin}>Login</button>
                 <button onClick={() => navigate("/register")}>Go to Register</button>
             </div>
         </div>

@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import Header from "./Layout/Header"
 import DashboardView from "./Tasks/DashboardView"
@@ -9,8 +8,6 @@ import CalendarView from "./Tasks/CalendarView"
 import TimerView from "./Tasks/TimerView"
 import AnalyticsView from "./Tasks/AnalyticsView"
 import "../Styles/modern.css"
-
-type View = "dashboard" | "tasks" | "calendar" | "timer" | "analytics"
 
 export default function TaskManager() {
     const location = useLocation()

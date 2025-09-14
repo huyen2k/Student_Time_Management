@@ -101,8 +101,6 @@ export default function AnalyticsView() {
 
     if (!analytics) return <div>Don't have analytics data</div>
 
-    const maxWeeklyHours = Math.max(...analytics.weeklyProgress.map((d) => d.hours))
-
     return (
         <div className="analytics-container">
             <div className="analytics-header">

@@ -10,12 +10,11 @@
     --color-foreground: #374151;
     --color-card: #f0fdf4;
     --color-muted: #6b7280;
-    --color-border: #e5e7eb;
+    --color-border: #d8dadf;
     --color-input: #f9fafb;
     --color-error: #dc2626;
     --color-success: #15803d;
     --color-muted-bg: #f9fafb;
-    /* Added for task selection disabled state */
 
     /* Spacing */
     --spacing-xs: 0.25rem;
@@ -163,6 +162,7 @@ body {
     background-color: transparent;
     color: var(--color-foreground);
     border: 1px solid var(--color-border);
+    margin-top: 20px;
 }
 
 .btn-secondary:hover {

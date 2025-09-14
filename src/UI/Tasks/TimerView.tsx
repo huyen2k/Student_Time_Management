@@ -28,6 +28,8 @@ export default function TimerView() {
     const [sessions, setSessions] = useState<StudySession[]>([])
     const [selectedTaskId, setSelectedTaskId] = useState<string | "">("")
     const [showWarning, setShowWarning] = useState(false)
+    const [pendingCompleteId, setPendingCompleteId] = useState<string | null>(null)
+    const pendingTickRef = useRef(false)
 
     const secondsSinceLastTickRef = useRef<number>(0)
 
@@ -48,14 +50,12 @@ export default function TimerView() {
 
                     if (secondsSinceLastTickRef.current >= 60) {
                         secondsSinceLastTickRef.current = 0
-                        if (activeTaskId) {
-                            tickMinute(activeTaskId).catch((e) => console.error(e))
-                        }
+                        pendingTickRef.current = true
                     }
 
                     if (next <= 0) {
                         if (activeTaskId) {
-                            endTask(activeTaskId)
+                            setPendingCompleteId(activeTaskId)
                         }
                         return 0
                     }
@@ -67,6 +67,23 @@ export default function TimerView() {
             if (interval) clearInterval(interval)
         }
     }, [isRunning, currentTime, activeTaskId])
+
+    useEffect(() => {
+        if (!pendingTickRef.current) return
+        pendingTickRef.current = false
+        if (activeTaskId) {
+            tickMinute(activeTaskId).catch(console.error)
+        }
+    }, [activeTaskId, tickMinute, currentTime])
+
+    useEffect(() => {
+        if (!pendingCompleteId) return
+        const id = pendingCompleteId
+        setPendingCompleteId(null) // clear cờ sớm để tránh lặp
+        // an toàn: gọi ngoài render
+        endTask(id)
+    }, [pendingCompleteId, endTask])
+
 
     const formatTime = (seconds: number) => {
         const mins = Math.floor(seconds / 60)

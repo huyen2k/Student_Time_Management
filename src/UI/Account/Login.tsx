@@ -4,8 +4,6 @@ import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { login } from "../../Core/authService"
 import "../../Styles/modern.css"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faBookOpen } from "@fortawesome/free-solid-svg-icons"
 
 export default function Login() {
     const [email, setEmail] = useState("")

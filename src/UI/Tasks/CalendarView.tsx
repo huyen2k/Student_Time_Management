@@ -1,14 +1,8 @@
+"use client"
+
 import { useState } from "react"
-import "../../Styles/CalendarView.css"
-import {
-    startOfMonth,
-    endOfMonth,
-    eachDayOfInterval,
-    isSameMonth,
-    isSameDay,
-    isToday,
-    format,
-} from "date-fns"
+import "../../Styles/modern.css"
+import { startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, isToday, format } from "date-fns"
 import { useTasks } from "../Common/TaskContext"
 import type { Task } from "../../Data/Types"
 
@@ -29,21 +23,15 @@ export default function CalendarView() {
     })
 
     const totalCells = 42
-    const trailingDays = Array.from(
-        { length: totalCells - paddingDays.length - calendarDays.length },
-        (_, i) => {
-            const date = new Date(monthEnd)
-            date.setDate(date.getDate() + i + 1)
-            return date
-        }
-    )
+    const trailingDays = Array.from({ length: totalCells - paddingDays.length - calendarDays.length }, (_, i) => {
+        const date = new Date(monthEnd)
+        date.setDate(date.getDate() + i + 1)
+        return date
+    })
 
     const allCalendarDays = [...paddingDays, ...calendarDays, ...trailingDays]
 
-    const getTasksForDate = (date: Date) =>
-        tasks.filter((task: Task) =>
-            isSameDay(new Date(task.dueDate), date)
-        )
+    const getTasksForDate = (date: Date) => tasks.filter((task: Task) => isSameDay(new Date(task.dueDate), date))
 
     const navigateMonth = (dir: "prev" | "next") => {
         setCurrentDate((prev) => {
@@ -87,6 +75,7 @@ export default function CalendarView() {
                     const isCurrent = isSameMonth(date, currentDate)
                     const isSel = selectedDate && isSameDay(date, selectedDate)
                     const today = isToday(date)
+                    const hasTasks = dayTasks.length > 0
 
                     return (
                         <div
@@ -94,6 +83,7 @@ export default function CalendarView() {
                             className={`calendar-day 
     ${isCurrent ? "" : "not-current"} 
     ${isSel ? "selected" : ""} 
+    ${hasTasks ? "has-task" : ""}
     ${today && isSel ? "today" : ""}`}
                             onClick={() => {
                                 setSelectedDate(date)
@@ -105,15 +95,9 @@ export default function CalendarView() {
                             <div className="date-num">{format(date, "d")}</div>
                             <div className="tasks-preview">
                                 {dayTasks.slice(0, 2).map((t) => (
-                                    <div
-                                        key={t.id}
-                                        className={`task-dot ${t.priority}`}
-                                        title={t.title}
-                                    ></div>
+                                    <div key={t.id} className={`task-dot ${t.priority}`} title={t.title}></div>
                                 ))}
-                                {dayTasks.length > 2 && (
-                                    <span className="more">+{dayTasks.length - 2}</span>
-                                )}
+                                {dayTasks.length > 2 && <span className="more">+{dayTasks.length - 2}</span>}
                             </div>
                         </div>
                     )
@@ -122,11 +106,7 @@ export default function CalendarView() {
 
             {/* Selected date tasks */}
             <div className="selected-tasks">
-                <h2>
-                    {selectedDate
-                        ? format(selectedDate, "MMM d, yyyy")
-                        : "Select a date"}
-                </h2>
+                <h2>{selectedDate ? format(selectedDate, "MMM d, yyyy") : "Select a date"}</h2>
                 {selectedDate ? (
                     selectedTasks.length > 0 ? (
                         <ul>

@@ -1,38 +1,33 @@
 // src/ui/TimerView.tsx
 import { useState, useEffect, useRef } from "react"
 import { useTasks } from "../Common/TaskContext"
-import "../../Styles/TimerView.css"
+import "../../Styles/modern.css"
 
 interface StudySession {
     id: string
     taskTitle: string
     subject: string
-    duration: number // minutes
+    duration: number
     startTime: Date
     endTime: Date
     completed: boolean
 }
 
 export default function TimerView() {
-    const {
-        tasks,
-        activeTaskId,
-        isRunning,
-        beginTask,
-        stopTimer,
-        completeTask,
-        tickMinute,
-    } = useTasks()
+    const { tasks, activeTaskId, isRunning, beginTask, stopTimer, endTask, tickMinute } = useTasks()
 
     const activeTask = tasks.find((t) => t.id === activeTaskId)
+    const incompleteTasks = tasks.filter((t) => t.status !== "completed")
 
-    const [pomodoroTime] = useState(25 * 60) // seconds
-    const [customTime, setCustomTime] = useState(0) // seconds
-    const [currentTime, setCurrentTime] = useState(25 * 60)
+    const [pomodoroTime] = useState(45 * 60)
+    const [customTime, setCustomTime] = useState(0)
+    const [currentTime, setCurrentTime] = useState(45 * 60)
     const [timerType, setTimerType] = useState<"pomodoro" | "custom">("pomodoro")
-    const [customMinutes, setCustomMinutes] = useState(25)
+    const [customMinutes, setCustomMinutes] = useState(30)
     const [customSeconds, setCustomSeconds] = useState(0)
     const [sessions, setSessions] = useState<StudySession[]>([])
+    const [selectedTaskId, setSelectedTaskId] = useState<string | "">("")
+    const [showWarning, setShowWarning] = useState(false)
 
     const secondsSinceLastTickRef = useRef<number>(0)
 
@@ -59,7 +54,9 @@ export default function TimerView() {
                     }
 
                     if (next <= 0) {
-                        if (activeTaskId) completeTask(activeTaskId)
+                        if (activeTaskId) {
+                            endTask(activeTaskId)
+                        }
                         return 0
                     }
                     return next
@@ -74,12 +71,22 @@ export default function TimerView() {
     const formatTime = (seconds: number) => {
         const mins = Math.floor(seconds / 60)
         const secs = seconds % 60
-        return `${mins.toString().padStart(2, "0")}:${secs
-            .toString()
-            .padStart(2, "0")}`
+        return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`
     }
 
     const handleStart = () => {
+        if (timerType === "custom" && !selectedTaskId) {
+            setShowWarning(true)
+            return
+        }
+
+        if (timerType === "pomodoro" && !selectedTaskId && !activeTaskId) {
+            setShowWarning(true)
+            return
+        }
+
+        setShowWarning(false)
+
         if (timerType === "custom" && customTime === 0) {
             const totalSeconds = customMinutes * 60 + customSeconds
             setCustomTime(totalSeconds)
@@ -87,8 +94,9 @@ export default function TimerView() {
         }
         if (activeTaskId) {
             beginTask(activeTaskId)
+
         } else {
-            console.warn("No active task selected to start.")
+            beginTask(selectedTaskId)
         }
     }
 
@@ -97,21 +105,51 @@ export default function TimerView() {
     }
 
     const handleComplete = () => {
-        if (activeTaskId) {
-            completeTask(activeTaskId)
+        if (activeTaskId || selectedTaskId) {
+            const taskId = (activeTaskId || selectedTaskId) as string
+            endTask(taskId)
             stopTimer()
+            setSessions((prev) => {
+                const taskId = (activeTaskId || selectedTaskId || "") as string;
+                const task = tasks.find((t) => t.id === taskId);
+                const time = timerType === "pomodoro" ? pomodoroTime : customTime;
+                const duration = Math.round((time - currentTime) / 60);
+                if (duration <= 0) return prev; // Ignore sessions with 0 duration
+                return [
+                    ...prev,
+                    {
+                        id: taskId,
+                        taskTitle: task?.title ?? "Untitled Task",
+                        subject: task?.subject ?? "Unknown Subject",
+                        duration: duration,
+                        startTime: new Date(Date.now() - duration * 60 * 1000),
+                        endTime: new Date(Date.now()),
+                        completed: false
+                    }
+                ];
+            })
             setCurrentTime(0)
+            setCustomTime(0)
+            setCustomMinutes(30)
+            setCustomSeconds(0)
         }
+
+        handleTaskSelect("")
+
+    }
+
+    const handleTaskSelect = (taskId: string) => {
+        setSelectedTaskId(taskId)
+        setShowWarning(false)
     }
 
     const switchTimerType = (type: "pomodoro" | "custom") => {
         setTimerType(type)
         setCurrentTime(type === "pomodoro" ? pomodoroTime : 0)
+        setShowWarning(false)
     }
 
-    const todaySessions = sessions.filter(
-        (s) => new Date(s.startTime).toDateString() === new Date().toDateString()
-    )
+    const todaySessions = sessions.filter((s) => new Date(s.startTime).toDateString() === new Date().toDateString())
     const totalStudyTime = todaySessions.reduce((total, s) => total + s.duration, 0)
 
     return (
@@ -125,16 +163,10 @@ export default function TimerView() {
                 {/* Timer */}
                 <div className="timer-box">
                     <div className="timer-type">
-                        <button
-                            className={timerType === "pomodoro" ? "active" : ""}
-                            onClick={() => switchTimerType("pomodoro")}
-                        >
-                            Pomodoro (25min)
+                        <button className={timerType === "pomodoro" ? "active" : ""} onClick={() => switchTimerType("pomodoro")}>
+                            Pomodoro (45min)
                         </button>
-                        <button
-                            className={timerType === "custom" ? "active" : ""}
-                            onClick={() => switchTimerType("custom")}
-                        >
+                        <button className={timerType === "custom" ? "active" : ""} onClick={() => switchTimerType("custom")}>
                             Custom Timer
                         </button>
                     </div>
@@ -150,9 +182,7 @@ export default function TimerView() {
                                     min="0"
                                     max="120"
                                     value={customMinutes}
-                                    onChange={(e) =>
-                                        setCustomMinutes(Number(e.target.value) || 0)
-                                    }
+                                    onChange={(e) => setCustomMinutes(Number(e.target.value) || 0)}
                                 />
                             </label>
                             <label>
@@ -162,9 +192,7 @@ export default function TimerView() {
                                     min="0"
                                     max="59"
                                     value={customSeconds}
-                                    onChange={(e) =>
-                                        setCustomSeconds(Number(e.target.value) || 0)
-                                    }
+                                    onChange={(e) => setCustomSeconds(Number(e.target.value) || 0)}
                                 />
                             </label>
                         </div>
@@ -172,22 +200,30 @@ export default function TimerView() {
 
                     <div className="task-select">
                         <label>
-                            Currently studying:
-                            <input
-                                type="text"
-                                value={activeTask ? activeTask.title : ""}
-                                readOnly
-                            />
+                            Select Task to Study:
+                            <select
+                                value={selectedTaskId || activeTaskId || ""}
+                                onChange={(e) => handleTaskSelect(e.target.value)} disabled={isRunning}>
+                                <option value="">Choose a task...</option>
+                                {incompleteTasks.map((task) => (
+                                    <option key={task.id} value={task.id}>
+                                        {task.title} ({task.subject})
+                                    </option>
+                                ))}
+                            </select>
                         </label>
                     </div>
 
+                    {showWarning && (
+                        <div className="error-message">
+                            <span className="error-icon">⚠️</span>
+                            Please select a task before starting the custom timer.
+                        </div>
+                    )}
+
                     <div className="timer-controls">
-                        {!isRunning ? (
-                            <button onClick={handleStart}>Start</button>
-                        ) : (
-                            <button onClick={handlePause}>Pause</button>
-                        )}
-                        <button onClick={handleComplete}>Complete</button>
+                        {!isRunning ? <button onClick={handleStart}>Start</button> : <button onClick={handlePause}>Pause</button>}
+                        <button onClick={handleComplete}>End</button>
                     </div>
                 </div>
 
@@ -196,13 +232,7 @@ export default function TimerView() {
                     <h2>Today's Progress</h2>
                     <p>Total Study Time: {totalStudyTime}m</p>
                     <p>Sessions Completed: {todaySessions.length}</p>
-                    <p>
-                        Avg. Session:{" "}
-                        {todaySessions.length > 0
-                            ? Math.round(totalStudyTime / todaySessions.length)
-                            : 0}
-                        m
-                    </p>
+                    <p>Avg. Session: {todaySessions.length > 0 ? Math.round(totalStudyTime / todaySessions.length) : 0}m</p>
 
                     <h3>Recent Sessions</h3>
                     <ul>
@@ -226,5 +256,4 @@ export default function TimerView() {
             </div>
         </div>
     )
-
 }

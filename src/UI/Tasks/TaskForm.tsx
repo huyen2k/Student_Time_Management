@@ -1,6 +1,10 @@
+"use client"
+
+import type React from "react"
+
 import { useState, useEffect } from "react"
 import type { Task, TaskPriority, TaskStatus } from "../../Data/Types"
-import "../../Styles/TaskForm.css"
+import "../../Styles/modern.css"
 
 type Props = {
     task?: Task
@@ -66,12 +70,7 @@ export default function TaskForm({ task, onSubmit, onCancel }: Props) {
                 {/* Title */}
                 <div className="form-group">
                     <label>Task Title *</label>
-                    <input
-                        type="text"
-                        value={formData.title}
-                        onChange={(e) => handleChange("title", e.target.value)}
-                        required
-                    />
+                    <input type="text" value={formData.title} onChange={(e) => handleChange("title", e.target.value)} required />
                 </div>
 
                 {/* Description */}
@@ -88,11 +87,7 @@ export default function TaskForm({ task, onSubmit, onCancel }: Props) {
                 <div className="form-row">
                     <div className="form-group">
                         <label>Subject *</label>
-                        <select
-                            value={formData.subject}
-                            onChange={(e) => handleChange("subject", e.target.value)}
-                            required
-                        >
+                        <select value={formData.subject} onChange={(e) => handleChange("subject", e.target.value)} required>
                             <option value="">-- Select subject --</option>
                             {subjects.map((s) => (
                                 <option key={s} value={s}>
@@ -106,9 +101,7 @@ export default function TaskForm({ task, onSubmit, onCancel }: Props) {
                         <label>Priority</label>
                         <select
                             value={formData.priority}
-                            onChange={(e) =>
-                                handleChange("priority", e.target.value as TaskPriority)
-                            }
+                            onChange={(e) => handleChange("priority", e.target.value as TaskPriority)}
                         >
                             <option value="low">Low</option>
                             <option value="medium">Medium</option>
@@ -133,15 +126,13 @@ export default function TaskForm({ task, onSubmit, onCancel }: Props) {
                     </div>
 
                     <div className="form-group">
-                        <label>Estimated Time (hours)</label>
+                        <label>Estimated Time (minutes)</label>
                         <input
                             type="number"
-                            min="0.5"
-                            step="0.5"
+                            min="1"
+                            step="1"
                             value={formData.estimatedTime}
-                            onChange={(e) =>
-                                handleChange("estimatedTime", Number(e.target.value) || 1)
-                            }
+                            onChange={(e) => handleChange("estimatedTime", Number(e.target.value) || 1)}
                         />
                     </div>
                 </div>
@@ -156,20 +147,13 @@ export default function TaskForm({ task, onSubmit, onCancel }: Props) {
                                 min="0"
                                 max="100"
                                 value={formData.progress}
-                                onChange={(e) =>
-                                    handleChange("progress", Number(e.target.value) || 0)
-                                }
+                                onChange={(e) => handleChange("progress", Number(e.target.value) || 0)}
                             />
                         </div>
 
                         <div className="form-group">
                             <label>Status</label>
-                            <select
-                                value={formData.status}
-                                onChange={(e) =>
-                                    handleChange("status", e.target.value as TaskStatus)
-                                }
-                            >
+                            <select value={formData.status} onChange={(e) => handleChange("status", e.target.value as TaskStatus)}>
                                 <option value="pending">Pending</option>
                                 <option value="in-progress">In Progress</option>
                                 <option value="completed">Completed</option>

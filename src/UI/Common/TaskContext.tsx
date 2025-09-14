@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react"
-import { ref, onValue, set, remove, update, runTransaction } from "firebase/database"
-import { db } from "../../Infrastructure/firebase"
+import { ref, onValue, set, remove, update, runTransaction, push } from "firebase/database"
+import { onAuthStateChanged } from "firebase/auth"
+import { auth, db } from "../../Infrastructure/firebase"
 import type { Task } from "../../Data/Types"
 
 type TaskContextType = {
@@ -11,7 +12,7 @@ type TaskContextType = {
     editTask: (id: string, updates: Partial<Task>) => void
     deleteTask: (id: string) => void
     beginTask: (id: string) => void
-    completeTask: (id: string) => void
+    endTask: (id: string) => void
     stopTask: () => void
     updateProgress: (id: string, progress: number, completed?: boolean) => void
     tickMinute: (id: string) => Promise<void>
@@ -30,55 +31,70 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
     const [tasks, setTasks] = useState<Task[]>([])
     const [activeTaskId, setActiveTaskId] = useState<string | null>(null)
     const [isRunning, setIsRunning] = useState(false)
+    const [userId, setUserId] = useState<string | null>(null)
 
     // Load Database
     useEffect(() => {
-        const tasksRef = ref(db, "tasks")
-        const unsubscribe = onValue(tasksRef, (snapshot) => {
-            const data = snapshot.val()
-            if (data) {
-                const loadedTasks: Task[] = Object.entries(data).map(([id, t]: any) => ({
-                    id,
-                    title: t.title,
-                    description: t.description || "",
-                    subject: t.subject || "General",
-                    priority: t.priority || "low",
-                    dueDate: t.dueDate,
-                    estimatedTime: t.estimatedTime || 0,
-                    actualTime: t.actualTime || 0,
-                    progress: t.progress || 0,
-                    status: t.status || "pending",
-                }))
-                setTasks(loadedTasks)
+        const unsubAuth = onAuthStateChanged(auth, (user) => {
+            if (user) {
+                setUserId(user.uid)
+                const tasksRef = ref(db, `users/${user.uid}/tasks`)
+                onValue(tasksRef, (snapshot) => {
+                    const data = snapshot.val()
+                    if (data) {
+                        const loaded: Task[] = Object.entries(data).map(([id, t]: any) => ({
+                            id,
+                            title: t.title,
+                            description: t.description || "",
+                            subject: t.subject || "General",
+                            priority: t.priority || "low",
+                            dueDate: t.dueDate,
+                            estimatedTime: t.estimatedTime || 0,
+                            actualTime: t.actualTime || 0,
+                            progress: t.progress || 0,
+                            status: t.status || "pending",
+                        }))
+                        setTasks(loaded)
+                    } else {
+                        setTasks([])
+                    }
+                })
             } else {
+                setUserId(null)
                 setTasks([])
             }
         })
-        return () => unsubscribe()
+        return () => unsubAuth()
     }, [])
 
     // Add task
     const addTask = (task: Omit<Task, "id">) => {
-        const id = Date.now().toString()
-        const newTask: Task = { id, ...task }
-        set(ref(db, `tasks/${id}`), newTask)
+        if (!userId) return
+        const tasksRef = ref(db, `users/${userId}/tasks`)
+        const newTaskRef = push(tasksRef)
+        const newTask: Task = { id: newTaskRef.key!, ...task }
+        set(newTaskRef, newTask)
     }
 
     // Edit task
     const editTask = (id: string, updates: Partial<Task>) => {
-        update(ref(db, `tasks/${id}`), updates)
+        if (!userId) return
+        update(ref(db, `users/${userId}/tasks/${id}`), updates)
     }
 
     // Delete task
     const deleteTask = (id: string) => {
-        remove(ref(db, `tasks/${id}`))
+        if (!userId) return
+        remove(ref(db, `users/${userId}/tasks/${id}`))
     }
 
     // Begin / Continue task
     const beginTask = (id: string) => {
-        setActiveTaskId(id)
+        const task = tasks.find((t) => t.id === id)
+        if (!task) return
+        setActiveTaskId(task.id)
         setIsRunning(true)
-        editTask(id, { status: "in-progress" })
+        editTask(task.id, { status: "in-progress" })
     }
     // Stop task
     const stopTask = () => {
@@ -86,10 +102,9 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     // Complete task
-    const completeTask = (id: string) => {
+    const endTask = (id: string) => {
         const target = id ?? activeTaskId
-        if (!target) return
-        editTask(id, { status: "completed", progress: 100 })
+        if (!target || !userId) return
         if (target === activeTaskId) {
             setIsRunning(false)
             setActiveTaskId(null)
@@ -98,6 +113,7 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
 
     // Update progress
     const updateProgress = (id: string, progress: number, completed = false) => {
+        if (!userId) return
         editTask(id, {
             progress,
             status: completed ? "completed" : progress > 0 ? "in-progress" : "pending",
@@ -110,11 +126,12 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
 
     const tickMinute = async (id: string) => {
         try {
-            const actualRef = ref(db, `tasks/${id}/actualTime`)
+            if (!userId) return
+            const actualRef = ref(db, `users/${userId}/tasks/${id}/actualTime`)
             await runTransaction(actualRef, (current) => {
                 return (current || 0) + 1
             })
-            const taskRef = ref(db, `tasks/${id}`)
+            const taskRef = ref(db, `users/${userId}/tasks/${id}`)
             const local = tasks.find((t) => t.id === id)
             if (local) {
                 const newActual = (local.actualTime || 0) + 1
@@ -131,8 +148,6 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
                         setActiveTaskId(null)
                     }
                 }
-            } else {
-                // If not in local state (rare), still increment actualTime already done; optionally update progress later
             }
         } catch (err) {
             console.error("tickMinute error:", err)
@@ -149,7 +164,7 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
                 editTask,
                 deleteTask,
                 beginTask,
-                completeTask,
+                endTask,
                 stopTask,
                 updateProgress,
                 tickMinute,
@@ -160,138 +175,3 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
         </TaskContext.Provider>
     )
 }
-
-
-/*
-interface TaskContextType {
-    tasks: Task[]
-    activeTaskId: string | null
-    isRunning: boolean
-    addTask: (task: Omit<Task, "id" | "progress" | "status" | "actualTime">) => void
-    editTask: (id: string, updates: Partial<Task>) => void
-    deleteTask: (id: string) => void
-    updateProgress: (id: string, progress: number, completed?: boolean) => void
-    beginTask: (id: string) => void
-    stopTask: () => void
-    completeTask: () => void
-    tickTime: () => void
-}
-
-const TaskContext = createContext<TaskContextType | undefined>(undefined)
-
-export function TaskProvider({ children }: { children: ReactNode }) {
-    const [tasks, setTasks] = useState<Task[]>([])
-    const [activeTaskId, setActiveTaskId] = useState<string | null>(null)
-    const [isRunning, setIsRunning] = useState(false)
-
-    // Load từ Firebase
-    useEffect(() => {
-        const tasksRef = ref(db, "tasks")
-        const unsubscribe = onValue(tasksRef, (snapshot) => {
-            const data = snapshot.val()
-            if (data) {
-                const loadedTasks: Task[] = Object.entries(data).map(([id, t]: any) => ({
-                    id,
-                    title: t.title,
-                    description: t.description || "",
-                    subject: t.subject || "General",
-                    priority: t.priority || "low",
-                    dueDate: t.dueDate,
-                    estimatedTime: t.estimatedTime || 0,
-                    actualTime: t.actualTime || 0,
-                    progress: t.progress || 0,
-                    status: t.status || "pending",
-                }))
-                setTasks(loadedTasks)
-            } else {
-                setTasks([])
-            }
-        })
-        return () => unsubscribe()
-    }, [])
-
-    // CRUD
-    const addTask = (task: Omit<Task, "id" | "progress" | "status" | "actualTime">) => {
-        const tasksRef = ref(db, "tasks")
-        const newTaskRef = push(tasksRef)
-        set(newTaskRef, {
-            ...task,
-            progress: 0,
-            status: "pending",
-            actualTime: 0,
-        })
-    }
-
-    const editTask = (id: string, updates: Partial<Task>) => {
-        update(ref(db, `tasks/${id}`), updates)
-    }
-
-    const deleteTask = (id: string) => {
-        remove(ref(db, `tasks/${id}`))
-    }
-
-    const updateProgress = (id: string, progress: number, completed = false) => {
-        update(ref(db, `tasks/${id}`), {
-            progress,
-            status: completed ? "completed" : progress > 0 ? "in-progress" : "pending",
-        })
-    }
-
-    // Timer actions
-    const beginTask = (id: string) => {
-        setActiveTaskId(id)
-        setIsRunning(true)
-        update(ref(db, `tasks/${id}`), { status: "in-progress" })
-    }
-
-    const stopTask = () => {
-        setIsRunning(false)
-    }
-
-    const completeTask = () => {
-        if (activeTaskId) {
-            updateProgress(activeTaskId, 100, true)
-            setIsRunning(false)
-            setActiveTaskId(null)
-        }
-    }
-
-    // Tick actual time (ví dụ gọi mỗi 60s trong TimerView)
-    const tickTime = () => {
-        if (activeTaskId) {
-            const task = tasks.find((t) => t.id === activeTaskId)
-            if (task) {
-                update(ref(db, `tasks/${task.id}`), {
-                    actualTime: task.actualTime + 1, // +1 phút học
-                })
-            }
-        }
-    }
-
-    return (
-        <TaskContext.Provider
-            value={{
-                tasks,
-                activeTaskId,
-                isRunning,
-                addTask,
-                editTask,
-                deleteTask,
-                updateProgress,
-                beginTask,
-                stopTask,
-                completeTask,
-                tickTime,
-            }}
-        >
-            {children}
-        </TaskContext.Provider>
-    )
-}
-
-export function useTasks() {
-    const context = useContext(TaskContext)
-    if (!context) throw new Error("useTasks must be used within TaskProvider")
-    return context
-}
-*/

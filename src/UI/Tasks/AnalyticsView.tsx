@@ -1,17 +1,8 @@
 import { useState, useMemo } from "react"
 import { useTasks } from "../Common/TaskContext"
-import "../../Styles/AnalyticsView.css"
+import "../../Styles/modern.css"
 import { differenceInCalendarDays, format } from "date-fns"
-import type { Task } from "../../Data/Types"
-import {
-    BarChart,
-    Bar,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    ResponsiveContainer,
-} from "recharts"
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 
 export default function AnalyticsView() {
     const { tasks } = useTasks()
@@ -22,38 +13,25 @@ export default function AnalyticsView() {
 
         const totalTasks = tasks.length
         const completedTasks = tasks.filter((t) => t.status === "completed").length
-        const totalStudyHours = tasks.reduce(
-            (sum, t) => sum + (t.actualTime || 0) / 60,
-            0
-        )
+        const totalStudyHours = tasks.reduce((sum, t) => sum + (t.actualTime || 0) / 60, 0)
 
         const estimationAccuracies: number[] = []
         tasks.forEach((t) => {
             if (t.estimatedTime && t.actualTime) {
                 const estMinutes = t.estimatedTime * 60
                 const diff = Math.abs(t.actualTime - estMinutes)
-                const acc = Math.max(
-                    0,
-                    100 - Math.round((diff / estMinutes) * 100)
-                )
+                const acc = Math.max(0, 100 - Math.round((diff / estMinutes) * 100))
                 estimationAccuracies.push(acc)
             }
         })
         const timeEstimationAccuracy =
             estimationAccuracies.length > 0
-                ? Math.round(
-                    estimationAccuracies.reduce((a, b) => a + b, 0) /
-                    estimationAccuracies.length
-                )
+                ? Math.round(estimationAccuracies.reduce((a, b) => a + b, 0) / estimationAccuracies.length)
                 : 0
 
-        const averageSessionLength =
-            completedTasks > 0
-                ? Math.round((totalStudyHours * 60) / completedTasks)
-                : 0
+        const averageSessionLength = completedTasks > 0 ? Math.round((totalStudyHours * 60) / completedTasks) : 0
 
-        const completionRate =
-            totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0
+        const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0
 
         const subjectMap: Record<string, { hours: number; tasks: number }> = {}
         tasks.forEach((t) => {
@@ -64,9 +42,11 @@ export default function AnalyticsView() {
             subjectMap[subject].hours += (t.actualTime || 0) / 60
             subjectMap[subject].tasks += 1
         })
-        const subjectBreakdown = Object.entries(subjectMap).map(
-            ([subject, { hours, tasks }]) => ({ subject, hours, tasks })
-        )
+        const subjectBreakdown = Object.entries(subjectMap).map(([subject, { hours, tasks }]) => ({
+            subject,
+            hours,
+            tasks,
+        }))
 
         const today = new Date()
         const weeklyProgress: { day: string; hours: number; tasks: number }[] = []
@@ -74,13 +54,9 @@ export default function AnalyticsView() {
             const d = new Date(today)
             d.setDate(d.getDate() - i)
             const hours = tasks
-                .filter(
-                    (t) => differenceInCalendarDays(new Date(t.dueDate), d) === 0
-                )
+                .filter((t) => differenceInCalendarDays(new Date(t.dueDate), d) === 0)
                 .reduce((sum, t) => sum + (t.actualTime || 0) / 60, 0)
-            const taskCount = tasks.filter(
-                (t) => differenceInCalendarDays(new Date(t.dueDate), d) === 0
-            ).length
+            const taskCount = tasks.filter((t) => differenceInCalendarDays(new Date(t.dueDate), d) === 0).length
             weeklyProgress.push({
                 day: format(d, "EEE"),
                 hours,
@@ -94,16 +70,14 @@ export default function AnalyticsView() {
                     const h = new Date(t.dueDate).getHours()
                     map[h] = (map[h] || 0) + 1
                     return map
-                }, {})
+                }, {}),
             ).sort((a, b) => b[1] - a[1])[0]?.[0] || 0
 
         let streak = 0
-        let current = new Date()
+        const current = new Date()
         while (true) {
             const doneToday = tasks.some(
-                (t) =>
-                    t.status === "completed" &&
-                    differenceInCalendarDays(new Date(t.dueDate), current) === 0
+                (t) => t.status === "completed" && differenceInCalendarDays(new Date(t.dueDate), current) === 0,
             )
             if (doneToday) {
                 streak++
@@ -125,7 +99,7 @@ export default function AnalyticsView() {
         }
     }, [tasks, timeRange])
 
-    if (!analytics) return <div>Loading analytics...</div>
+    if (!analytics) return <div>Don't have analytics data</div>
 
     const maxWeeklyHours = Math.max(...analytics.weeklyProgress.map((d) => d.hours))
 
@@ -139,7 +113,6 @@ export default function AnalyticsView() {
                 <select value={timeRange} onChange={(e) => setTimeRange(e.target.value)}>
                     <option value="week">This Week</option>
                     <option value="month">This Month</option>
-                    <option value="semester">This Semester</option>
                 </select>
             </div>
 
@@ -156,9 +129,7 @@ export default function AnalyticsView() {
                 <div className="metric-card">
                     <h3>Study Hours</h3>
                     <p className="value">{analytics.totalStudyHours}h</p>
-                    <p className="small">
-                        Avg: {Math.round(analytics.totalStudyHours / 7)}h/day
-                    </p>
+                    <p className="small">Avg: {Math.round(analytics.totalStudyHours / 7)}h/day</p>
                 </div>
 
                 <div className="metric-card">
@@ -182,7 +153,7 @@ export default function AnalyticsView() {
                             <XAxis dataKey="day" />
                             <YAxis />
                             <Tooltip />
-                            <Bar dataKey="hours" fill="#8884d8" />
+                            <Bar dataKey="hours" fill="#15803d" />
                         </BarChart>
                     </ResponsiveContainer>
                 </div>
@@ -199,10 +170,7 @@ export default function AnalyticsView() {
                             <div className="progress">
                                 <div
                                     style={{
-                                        width: `${analytics.totalStudyHours > 0
-                                            ? (s.hours / analytics.totalStudyHours) * 100
-                                            : 0
-                                            }%`,
+                                        width: `${analytics.totalStudyHours > 0 ? (s.hours / analytics.totalStudyHours) * 100 : 0}%`,
                                     }}
                                 ></div>
                             </div>
@@ -213,19 +181,12 @@ export default function AnalyticsView() {
                 {/* Insights */}
                 <div className="analytics-card">
                     <h2>Productivity Insights</h2>
-                    <div className="insight blue">
-                        Most productive at {analytics.mostProductiveHour}:00
-                    </div>
+                    <div className="insight blue">Most productive at {analytics.mostProductiveHour}:00</div>
                     <div className="insight green">
-                        Strength: {analytics.subjectBreakdown[0].subject} (
-                        {analytics.subjectBreakdown[0].hours.toFixed(1)}h)
+                        Strength: {analytics.subjectBreakdown[0].subject} ({analytics.subjectBreakdown[0].hours.toFixed(1)}h)
                     </div>
-                    <div className="insight yellow">
-                        Time estimation accuracy: {analytics.timeEstimationAccuracy}%
-                    </div>
-                    <div className="insight purple">
-                        Avg session length: {analytics.averageSessionLength} min
-                    </div>
+                    <div className="insight yellow">Time estimation accuracy: {analytics.timeEstimationAccuracy}%</div>
+                    <div className="insight purple">Avg session length: {analytics.averageSessionLength} min</div>
                 </div>
             </div>
         </div>

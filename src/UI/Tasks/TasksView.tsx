@@ -1,13 +1,14 @@
+"use client"
+
 import { useState } from "react"
-import "../../Styles/TasksView.css"
+import "../../Styles/modern.css"
 import TaskForm from "./TaskForm"
 import TaskCard from "./TaskCard"
 import { useTasks } from "../Common/TaskContext"
 import { useNavigate } from "react-router-dom"
 
-
 export default function TasksView() {
-    const { tasks, addTask, editTask, deleteTask, beginTask, completeTask } = useTasks()
+    const { tasks, addTask, editTask, deleteTask, beginTask, endTask } = useTasks()
     const navigate = useNavigate()
 
     const [searchTerm, setSearchTerm] = useState("")
@@ -42,7 +43,7 @@ export default function TasksView() {
                     <p>Manage your assignments and study tasks</p>
                 </div>
                 <button
-                    className="btn primary"
+                    className="btn btn-primary"
                     onClick={() => {
                         setEditingTask(undefined)
                         setShowForm(true)
@@ -98,22 +99,19 @@ export default function TasksView() {
                         onDelete={(id) => deleteTask(id)}
                         onStart={(id) => {
                             beginTask(id)
-                            navigate("/timer")
+                            navigate("/app/timer")
                         }}
-                        onComplete={(id) => completeTask(id)}
                         onStatusChange={(id, status) => editTask(id, { status })}
                     />
                 ))}
             </div>
 
-            {filteredTasks.length === 0 && (
-                <div className="no-tasks">No tasks found matching your criteria.</div>
-            )}
+            {filteredTasks.length === 0 && <div className="no-tasks">No tasks found matching your criteria.</div>}
 
             {/* Popup form */}
             {showForm && (
-                <div className="overlay">
-                    <div className="form-popup">
+                <div className="modal-overlay">
+                    <div className="modal-content">
                         <TaskForm
                             task={editingTask}
                             onSubmit={(data) => {

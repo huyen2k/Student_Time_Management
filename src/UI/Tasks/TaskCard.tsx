@@ -1,3 +1,5 @@
+"use client"
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import type { Task } from "../../Data/Types"
 import { faTrash } from "@fortawesome/free-solid-svg-icons/faTrash"
@@ -8,18 +10,10 @@ type Props = {
   onEdit: (t: Task) => void
   onDelete: (id: string) => void
   onStart: (id: string) => void
-  onComplete: (id: string) => void
   onStatusChange: (id: string, status: Task["status"]) => void
 }
 
-export default function TaskCard({
-  task,
-  onEdit,
-  onDelete,
-  onStart,
-  onComplete,
-  onStatusChange,
-}: Props) {
+export default function TaskCard({ task, onEdit, onDelete, onStart, onStatusChange }: Props) {
   const due = task.dueDate ? new Date(task.dueDate) : null
   const isOverdue = due ? due < new Date() && task.status !== "completed" : false
 
@@ -42,11 +36,7 @@ export default function TaskCard({
       {task.description && <p className="task-desc">{task.description}</p>}
 
       {/* Due Date */}
-      {due && (
-        <p className={`task-due ${isOverdue ? "overdue" : ""}`}>
-          Due: {due.toLocaleDateString()}
-        </p>
-      )}
+      {due && <p className={`task-due ${isOverdue ? "overdue" : ""}`}>Due: {due.toLocaleDateString()}</p>}
 
       {/* Footer */}
       <div className="task-footer">
@@ -56,10 +46,11 @@ export default function TaskCard({
             <button className="task-begin" onClick={() => onStart(task.id)}>
               {task.status === "pending" ? "Start" : "Continue"}
             </button>
-            <button className="task-end" onClick={() => onComplete(task.id)}>Complete</button>
           </>
         ) : (
-          <button className="task-change" onClick={() => onStatusChange(task.id, "in-progress")}>Reopen</button>
+          <button className="task-change" onClick={() => onStatusChange(task.id, "in-progress")}>
+            Reopen
+          </button>
         )}
       </div>
     </div>

@@ -8,7 +8,7 @@ import { useTasks } from "../Common/TaskContext"
 import { useNavigate } from "react-router-dom"
 
 export default function TasksView() {
-    const { tasks, addTask, editTask, deleteTask, beginTask, endTask } = useTasks()
+    const { tasks, addTask, editTask, deleteTask, beginTask } = useTasks()
     const navigate = useNavigate()
 
     const [searchTerm, setSearchTerm] = useState("")

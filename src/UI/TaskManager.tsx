@@ -13,7 +13,6 @@ import "../Styles/modern.css"
 type View = "dashboard" | "tasks" | "calendar" | "timer" | "analytics"
 
 export default function TaskManager() {
-    const [activeView, setActiveView] = useState<View>("dashboard")
     const location = useLocation()
     const navigate = useNavigate()
 

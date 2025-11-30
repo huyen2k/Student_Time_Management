@@ -3,7 +3,7 @@ import { getAuth } from "firebase/auth";
 import { getDatabase } from "firebase/database";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyAEro_B2A7_D-Bsm_Z7oncgcYObSq0TwTs",
+    apiKey: process.env.API_KEY,
     authDomain: "student-time-management-25256.firebaseapp.com",
     projectId: "student-time-management-25256",
     storageBucket: "student-time-management-25256.firebasestorage.app",
